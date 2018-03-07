@@ -1,0 +1,8 @@
+language: java
+jdk:
+  - oraclejdk8
+os:
+  - linux
+script:
+  - chmod +x build.sh
+  - ./build.sh
