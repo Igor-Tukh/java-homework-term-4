@@ -50,7 +50,7 @@ public class GameController {
         Button button = (Button) actionEvent.getTarget();
         int ind = button.getId().charAt(6) - '0';
         if (processTurn(ind / 3, ind % 3, button) == GameStatus.OVER) {
-            String winner = getPlayersDescrition(getWinnerNumber());
+            String winner = getPlayersDescription(getWinnerNumber());
             playerVictoryCounter += winner.equals("Player") ? 1 : 0;
             botVictoryCounter += winner.equals("Bot") ? 1 : 0;
             drawCounter += model.isDraw() ? 1 : 0;
@@ -61,13 +61,17 @@ public class GameController {
     public void onModeChose(ActionEvent actionEvent) {
         String mode = ((MenuItem) actionEvent.getTarget()).getId();
 
-        if (mode.equals("hotSeat")) {
-            needToProcessFirstTurn = false;
-            gameMode = GameMode.HOT_SEAT;
-        } else if (mode.equals("easyBot")) {
-            gameMode = GameMode.EASY_BOT;
-        } else {
-            gameMode = GameMode.HARD_BOT;
+        switch (mode) {
+            case "hotSeat":
+                needToProcessFirstTurn = false;
+                gameMode = GameMode.HOT_SEAT;
+                break;
+            case "easyBot":
+                gameMode = GameMode.EASY_BOT;
+                break;
+            default:
+                gameMode = GameMode.HARD_BOT;
+                break;
         }
     }
 
@@ -117,7 +121,7 @@ public class GameController {
         }
     }
 
-    public GameStatus processTurn(int row, int column, Button button) {
+    private GameStatus processTurn(int row, int column, Button button) {
         if (model.processTurn(row, column)) {
             updateLastModified(button);
 
@@ -155,21 +159,21 @@ public class GameController {
         if (model.isDraw()) {
             label.setText("Draw");
         } else if (model.isFinished()) {
-            label.setText(getPlayersDescrition(getWinnerNumber()) + " win.");
+            label.setText(getPlayersDescription(getWinnerNumber()) + " win.");
         } else {
-            label.setText(getPlayersDescrition(getCurrentPlayerNumber()) + "'s turn.");
+            label.setText(getPlayersDescription(getCurrentPlayerNumber()) + "'s turn.");
         }
     }
 
-    public int getWinnerNumber() {
+    private int getWinnerNumber() {
         return winnerNumber;
     }
 
-    public int getCurrentPlayerNumber() {
+    private int getCurrentPlayerNumber() {
         return currentPlayerNumber;
     }
 
-    public String getPlayersDescrition(int playerNumber) {
+    private String getPlayersDescription(int playerNumber) {
         if (gameMode == GameMode.HOT_SEAT) {
             if (playerNumber == 0) {
                 return "First player";
