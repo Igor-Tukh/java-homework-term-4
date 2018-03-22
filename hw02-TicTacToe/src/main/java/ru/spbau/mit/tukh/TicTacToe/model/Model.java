@@ -17,7 +17,6 @@ public class Model {
     private int turnStatus;
     private int lastModifiedX;
     private int lastModifiedY;
-    private boolean isDraw;
 
     private CellState[][] field = new CellState[3][3];
 
@@ -43,6 +42,10 @@ public class Model {
     }
 
     public boolean isFinished() {
+        return checkAllTriples() || isDraw();
+    }
+
+    private boolean checkAllTriples() {
         boolean check = false;
 
         for (int i = 0; i < 3; i++) {
@@ -53,17 +56,7 @@ public class Model {
         check |= checkWin(0, 0, 1, 1);
         check |= checkWin(0, 2, 1, -1);
 
-        int count = 0;
-        for (int row = 0; row < 3; row++) {
-            for(int column = 0; column < 3; column++) {
-                count += field[row][column] == CellState.NOTHING ? 1 : 0;
-            }
-        }
-
-        if (!check && count == 0) {
-            isDraw = true;
-        }
-        return check || (count == 0);
+        return check;
     }
 
     private boolean checkWin(int startX, int startY, int dX, int dY) {
@@ -90,7 +83,14 @@ public class Model {
     }
 
     public boolean isDraw() {
-        return isDraw;
+        int count = 0;
+        for (int row = 0; row < 3; row++) {
+            for(int column = 0; column < 3; column++) {
+                count += field[row][column] == CellState.NOTHING ? 1 : 0;
+            }
+        }
+
+        return (count == 0) && !checkAllTriples();
     }
 
     public int getTurnStatus() {

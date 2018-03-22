@@ -33,6 +33,7 @@ public class GameController {
 
     /**
      * Adds a scene to controller.
+     *
      * @param scene is given scene.
      */
     public static void addScene(Scene scene) {
@@ -219,7 +220,9 @@ public class GameController {
     /**
      * Enums for game mode and status respectively.
      */
-    public enum GameMode {HOT_SEAT, EASY_BOT, HARD_BOT}
+    public enum GameMode {
+        HOT_SEAT, EASY_BOT, HARD_BOT
+    }
 
     public enum GameStatus {CONTINUES, OVER}
 }
