@@ -12,6 +12,9 @@ import ru.spbau.mit.tukh.TicTacToe.bot.CleverBot;
 import ru.spbau.mit.tukh.TicTacToe.bot.RandomBot;
 import ru.spbau.mit.tukh.TicTacToe.model.Model;
 
+/**
+ * GameController class which works with GUI and model.
+ */
 public class GameController {
     private static Scene scene;
     private static GridPane gridPane;
@@ -28,11 +31,18 @@ public class GameController {
     private int drawCounter;
     private int gamesCounter;
 
+    /**
+     * Adds a scene to controller.
+     * @param scene is given scene.
+     */
     public static void addScene(Scene scene) {
         GameController.scene = scene;
         gridPane = (GridPane) scene.lookup("#field");
     }
 
+    /**
+     * Handles press on statistics menu node.
+     */
     public void onStatisticsPressed() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Statistics");
@@ -42,6 +52,9 @@ public class GameController {
         alert.show();
     }
 
+    /**
+     * Handles press on cell.
+     */
     public void onButtonClick(ActionEvent actionEvent) {
         if (!gameIsActive) {
             return;
@@ -51,13 +64,16 @@ public class GameController {
         int ind = button.getId().charAt(6) - '0';
         if (processTurn(ind / 3, ind % 3, button) == GameStatus.OVER) {
             String winner = getPlayersDescription(getWinnerNumber());
-            playerVictoryCounter += winner.equals("Player") ? 1 : 0;
-            botVictoryCounter += winner.equals("Bot") ? 1 : 0;
+            playerVictoryCounter += !model.isDraw() && winner.equals("Player") ? 1 : 0;
+            botVictoryCounter += !model.isDraw() && winner.equals("Bot") ? 1 : 0;
             drawCounter += model.isDraw() ? 1 : 0;
             gamesCounter++;
         }
     }
 
+    /**
+     * Handles press on mode menu node.
+     */
     public void onModeChose(ActionEvent actionEvent) {
         String mode = ((MenuItem) actionEvent.getTarget()).getId();
 
@@ -75,12 +91,18 @@ public class GameController {
         }
     }
 
+    /**
+     * Handles press on orders menu node.
+     */
     public void onGameOrderChose(ActionEvent actionEvent) {
         String order = ((MenuItem) actionEvent.getTarget()).getId();
 
         needToProcessFirstTurn = !(order.equals("playerBegins"));
     }
 
+    /**
+     * Starts new game.
+     */
     public void startGame() {
         firstTurnByBot = needToProcessFirstTurn;
         currentPlayerNumber = 0;
@@ -194,6 +216,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Enums for game mode and status respectively.
+     */
     public enum GameMode {HOT_SEAT, EASY_BOT, HARD_BOT}
 
     public enum GameStatus {CONTINUES, OVER}

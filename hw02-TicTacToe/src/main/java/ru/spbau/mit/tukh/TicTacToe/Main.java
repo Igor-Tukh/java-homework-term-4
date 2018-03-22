@@ -6,6 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Tic-Tac-Toe application.
+ */
 public class Main extends Application {
 
     public static void main(String[] args) {

@@ -92,4 +92,8 @@ public class Model {
     public boolean isDraw() {
         return isDraw;
     }
+
+    public int getTurnStatus() {
+        return turnStatus;
+    }
 }

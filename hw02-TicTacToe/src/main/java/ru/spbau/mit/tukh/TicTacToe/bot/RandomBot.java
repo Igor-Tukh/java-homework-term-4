@@ -5,6 +5,9 @@ import ru.spbau.mit.tukh.TicTacToe.model.Model;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * Simple random bot.
+ */
 public class RandomBot implements Bot {
     private Random random = new Random();
 
