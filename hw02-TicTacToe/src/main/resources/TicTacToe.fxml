@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" minHeight="400.0" minWidth="300.0"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="ru.spbau.mit.tukh.TicTacToe.GameController">
+    <top>
+    </top>
+    <center>
+        <GridPane fx:id="field" alignment="TOP_CENTER" gridLinesVisible="true" maxHeight="300.0" maxWidth="300.0"
+                  minHeight="300.0" minWidth="300.0">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="33.3"/>
+                <ColumnConstraints percentWidth="33.3"/>
+                <ColumnConstraints percentWidth="33.3"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints/>
+                <RowConstraints percentHeight="33.3"/>
+                <RowConstraints percentHeight="33.3"/>
+                <RowConstraints percentHeight="33.3"/>
+            </rowConstraints>
+            <children>
+                <Button fx:id="button0" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Button fx:id="button1" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Button fx:id="button2" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <Button fx:id="button3" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Button fx:id="button4" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Button fx:id="button5" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                <Button fx:id="button6" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Button fx:id="button7" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Button fx:id="button8" onAction="#onButtonClick" prefHeight="100.0" prefWidth="100.0"
+                        GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+            </children>
+            <padding>
+                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
+            </padding>
+            <opaqueInsets>
+                <Insets/>
+            </opaqueInsets>
+        </GridPane>
+    </center>
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <fx:define>
+                    <ToggleGroup fx:id="toggleGroup1"/>
+                </fx:define>
+                <fx:define>
+                    <ToggleGroup fx:id="toggleGroup2"/>
+                </fx:define>
+                <Menu mnemonicParsing="false" text="Game">
+                    <items>
+                        <MenuItem fx:id="newGame" mnemonicParsing="false" onAction="#startGame" text="Start new game"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onStatisticsPressed" text="Statistics"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Mode">
+                    <items>
+                        <RadioMenuItem fx:id="hotSeat" mnemonicParsing="false" onAction="#onModeChose" selected="true"
+                                       text="Hot seat" toggleGroup="$toggleGroup1"/>
+                        <RadioMenuItem fx:id="easyBot" mnemonicParsing="false" onAction="#onModeChose" text="Easy bot"
+                                       toggleGroup="$toggleGroup1"/>
+                        <RadioMenuItem fx:id="notSoEasyBot" mnemonicParsing="false" onAction="#onModeChose"
+                                       text="Not so easy bot" toggleGroup="$toggleGroup1"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" onAction="#onGameOrderChose" text="Game order (with bot)">
+                    <items>
+                        <RadioMenuItem fx:id="playerBegins" mnemonicParsing="false" selected="true" text="Player begins"
+                                       toggleGroup="$toggleGroup2"/>
+                        <RadioMenuItem fx:id="botBegins" mnemonicParsing="false" text="Bot begins"
+                                       toggleGroup="$toggleGroup2"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <bottom>
+        <Label fx:id="status" alignment="CENTER" minWidth="300.0"
+               style="-fx-background-color: white; -fx-font-size: 20; -fx-text-fill: black;" text="Game not started"
+               BorderPane.alignment="CENTER"/>
+    </bottom>
+</BorderPane>
