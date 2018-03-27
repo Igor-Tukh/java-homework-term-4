@@ -27,12 +27,12 @@ public class LazyFactoryTest {
     }
 
     @Test
-    public void testUnsynchronizedLazyIsLazy() {
+    public void testUnsynchronizedLazyGetCalledOnce() {
         initSimpleLazy();
         for (int i = 0; i < 100; i++) {
             assertFalse(lazy.get());
         }
-        assertTrue(testSupplier.calledAtMostOnce());
+        assertTrue(testSupplier.calledOnce());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class LazyFactoryTest {
             threads[i].join();
         }
 
-        assertTrue(testSupplier.calledAtMostOnce());
+        assertTrue(testSupplier.calledOnce());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class LazyFactoryTest {
             threads[i].join();
         }
 
-        assertTrue(testSupplier.calledAtMostOnce());
+        assertTrue(testSupplier.calledOnce());
     }
 
 
@@ -101,8 +101,8 @@ public class LazyFactoryTest {
          * @return true if get was called once or zero times and false otherwise.
          */
 
-        public boolean calledAtMostOnce() {
-            return callsCount < 2;
+        boolean calledOnce() {
+            return callsCount == 1;
         }
     }
 }

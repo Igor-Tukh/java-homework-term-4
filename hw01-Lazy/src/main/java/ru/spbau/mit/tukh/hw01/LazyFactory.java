@@ -35,11 +35,10 @@ public class LazyFactory {
      * @param <T> is generic Lazy argument.
      */
     private static abstract class AbstractLazy<T> implements Lazy<T> {
-        private Supplier<T> supplier;
+        private volatile Supplier<T> supplier;
         private T result;
-        private boolean hasResult;
 
-        public AbstractLazy(Supplier<T> supplier) {
+        AbstractLazy(Supplier<T> supplier) {
             this.supplier = supplier;
         }
     }
@@ -50,33 +49,32 @@ public class LazyFactory {
      * @param <T> is generic Lazy argument.
      */
     private static class SimpleLazy<T> extends AbstractLazy<T> {
-        public SimpleLazy(Supplier<T> supplier) {
+        SimpleLazy(Supplier<T> supplier) {
             super(supplier);
         }
 
         @Override
         public T get() {
-            if (!super.hasResult) {
+            if (super.supplier != null) {
                 super.result = super.supplier.get();
-                super.hasResult = true;
+                super.supplier = null;
             }
             return super.result;
         }
     }
 
     private static class MultiLazy<T> extends AbstractLazy<T> {
-        public MultiLazy(Supplier<T> supplier) {
+        MultiLazy(Supplier<T> supplier) {
             super(supplier);
         }
 
-        //Uses double-checking locking, volatile is not necessary.
         @Override
         public T get() {
-            if (!super.hasResult) {
+            if (super.supplier != null) {
                 synchronized (this) {
-                    if (!super.hasResult) {
+                    if (super.supplier != null) {
                         super.result = super.supplier.get();
-                        super.hasResult = true;
+                        super.supplier = null;
                     }
                 }
             }
