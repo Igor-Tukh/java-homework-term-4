@@ -30,55 +30,52 @@ public class LazyFactory {
     }
 
     /**
-     * Abstract ancestor class for all Lazy implementations.
-     *
-     * @param <T> is generic Lazy argument.
-     */
-    private static abstract class AbstractLazy<T> implements Lazy<T> {
-        private volatile Supplier<T> supplier;
-        private T result;
-
-        AbstractLazy(Supplier<T> supplier) {
-            this.supplier = supplier;
-        }
-    }
-
-    /**
      * Implementation of unsynchronized Lazy version.
      *
      * @param <T> is generic Lazy argument.
      */
-    private static class SimpleLazy<T> extends AbstractLazy<T> {
+    private static class SimpleLazy<T> implements Lazy<T> {
+        private Supplier<T> supplier;
+        private T result;
+
         SimpleLazy(Supplier<T> supplier) {
-            super(supplier);
+            this.supplier = supplier;
         }
 
         @Override
         public T get() {
-            if (super.supplier != null) {
-                super.result = super.supplier.get();
-                super.supplier = null;
+            if (supplier != null) {
+                result = supplier.get();
+                supplier = null;
             }
-            return super.result;
+            return result;
         }
     }
 
-    private static class MultiLazy<T> extends AbstractLazy<T> {
+    /**
+     * Implementation of synchronized Lazy version.
+     *
+     * @param <T> is generic Lazy argument.
+     */
+    private static class MultiLazy<T> implements Lazy<T> {
+        private volatile Supplier<T> supplier;
+        private T result;
+
         MultiLazy(Supplier<T> supplier) {
-            super(supplier);
+            this.supplier = supplier;
         }
 
         @Override
         public T get() {
-            if (super.supplier != null) {
+            if (supplier != null) {
                 synchronized (this) {
-                    if (super.supplier != null) {
-                        super.result = super.supplier.get();
-                        super.supplier = null;
+                    if (supplier != null) {
+                        result = supplier.get();
+                        supplier = null;
                     }
                 }
             }
-            return super.result;
+            return result;
         }
     }
 }
