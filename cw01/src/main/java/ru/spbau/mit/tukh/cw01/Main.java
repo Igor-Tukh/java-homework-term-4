@@ -10,16 +10,16 @@ public class Main {
         long currentTime = System.currentTimeMillis();
         try {
             byte[] ansRecursive = RecursiveSolver.getMD5(path);
-            long recrsiveSolverTime = System.currentTimeMillis() - currentTime;
+            long recursiveSolverTime = System.currentTimeMillis() - currentTime;
             currentTime = System.currentTimeMillis();
             byte[] ansForkJoin = RecursiveSolver.getMD5(path);
             long ForkJoinSolverTime = System.currentTimeMillis() - currentTime;
             System.err.println("Simple recursive solver worked " + ForkJoinSolverTime +
-                    " mills.\nForkJoinSolver worked " + recrsiveSolverTime + " mills");
+                    " mills.\nForkJoinSolver worked " + recursiveSolverTime + " mills");
 
-            boolean  arraysAreEquals = ansForkJoin.length == ansRecursive.length;
+            boolean arraysAreEquals = ansForkJoin.length == ansRecursive.length;
             if (arraysAreEquals) {
-                for (int i  = 0; i < ansForkJoin.length; i++) {
+                for (int i = 0; i < ansForkJoin.length; i++) {
                     arraysAreEquals &= (ansForkJoin[i] == ansRecursive[i]);
                 }
             }

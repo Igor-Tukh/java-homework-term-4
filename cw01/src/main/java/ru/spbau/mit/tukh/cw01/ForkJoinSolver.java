@@ -30,7 +30,7 @@ public class ForkJoinSolver {
         return null;
     }
 
-        private static class MD5Task extends RecursiveTask<byte[]> {
+    private static class MD5Task extends RecursiveTask<byte[]> {
         private Path path;
 
         MD5Task(@NotNull Path path) {
@@ -53,13 +53,13 @@ public class ForkJoinSolver {
 
                 List<Path> content = Files.list(path).sorted().collect(Collectors.toList());
                 ArrayList<MD5Task> tasks = new ArrayList<>();
-                for (Path subpath: content) {
+                for (Path subpath : content) {
                     MD5Task md5Task = new MD5Task(subpath);
                     md5Task.fork();
                     tasks.add(md5Task);
                 }
 
-                for (MD5Task task: tasks) {
+                for (MD5Task task : tasks) {
                     messageDigest.update(task.join());
                 }
 

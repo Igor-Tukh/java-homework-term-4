@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class RecursiveSolver {
     /**
      * Computes MD5 of a given path (directory/file).
+     *
      * @param path is path to compute MD5.
      * @return MD5 of the argument.
      * @throws IOException if there are some problems with reading file.
@@ -31,7 +32,7 @@ public class RecursiveSolver {
         List<Path> content = Files.list(path).sorted().collect(Collectors.toList());
 
         messageDigest.update(path.getFileName().toString().getBytes());
-        for (Path subpath: content) {
+        for (Path subpath : content) {
             if (!Files.isDirectory(subpath)) {
                 messageDigest.update(Utils.getMD5ofFile(subpath));
             } else {
