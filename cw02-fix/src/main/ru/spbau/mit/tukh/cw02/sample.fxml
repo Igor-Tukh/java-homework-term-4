@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.GridPane?>
-
-
-<GridPane fx:id="gridPane" alignment="center" hgap="10" vgap="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="main.ru.spbau.mit.tukh.cw02.Controller">
-</GridPane>
