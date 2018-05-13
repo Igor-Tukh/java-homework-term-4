@@ -1,10 +1,12 @@
 package ru.spbau.mit.tukh.hw03;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -95,6 +97,42 @@ public class MyClient {
         System.out.println(size);
         for (int i = 0; i < size; i++) {
             System.out.println(dataInputStream.readUTF() + " " + dataInputStream.readBoolean());
+        }
+    }
+
+    List<Controller.FileDescription> requestListWithDescriptions(String path) throws IOException {
+        ArrayList<Controller.FileDescription> arrayList = new ArrayList<>();
+
+        dataOutputStream.writeInt(1);
+        dataOutputStream.writeUTF(path);
+
+        int size = dataInputStream.readInt();
+        for (int i = 0; i < size; i++) {
+            String filename = dataInputStream.readUTF();
+            arrayList.add(new Controller.FileDescription(filename, path + File.separator + filename, !dataInputStream.readBoolean()));
+        }
+
+        return arrayList;
+    }
+
+    void requestGetToFile(File destinationFile, String path) throws IOException {
+        dataOutputStream.writeInt(2);
+        dataOutputStream.writeUTF(path);
+        dataOutputStream.flush();
+
+        OutputStream outputStream = Files.newOutputStream(Paths.get(destinationFile.getPath()));
+
+        long size = dataInputStream.readLong();
+
+        if (size == 0) {
+            return;
+        }
+
+        int red;
+        while (size > 0) {
+            red = dataInputStream.read(buf, 0, (int) Math.min(size, BUF_SIZE));
+            outputStream.write(buf, 0, red);
+            size -= red;
         }
     }
 }

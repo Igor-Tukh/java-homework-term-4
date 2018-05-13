@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<ScrollPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.121"
+            fx:controller="ru.spbau.mit.tukh.hw03.Controller">
+    <GridPane fx:id="gridPane" alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="100.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="ALWAYS"/>
+        </rowConstraints>
+        <children>
+            <VBox alignment="TOP_CENTER" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                <children>
+                    <Label fx:id="label" text="Set server ip"/>
+                    <TextField fx:id="textField" promptText="localhost" text="localhost"/>
+                    <Button fx:id="startButton" mnemonicParsing="false" onAction="#onStartButtonClick"
+                            text="Start"/>
+                    <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButtonClicked" text="Save"/>
+                </children>
+            </VBox>
+            <TreeView fx:id="treeView" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS"/>
+        </children>
+    </GridPane>
+</ScrollPane>
