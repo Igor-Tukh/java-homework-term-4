@@ -5,6 +5,9 @@ import ru.spbau.mit.tukh.hw05.annotations.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Launches all tests in file.
+ */
 public class TestLauncher {
     private Class<?> clazz;
     private Logger logger;
@@ -20,6 +23,9 @@ public class TestLauncher {
         this.logger = new Logger(clazz.getName(), instance);
     }
 
+    /**
+     * Starts testing.
+     */
     public void start() {
         MethodClassifier methodClassifier = new MethodClassifier(clazz);
 

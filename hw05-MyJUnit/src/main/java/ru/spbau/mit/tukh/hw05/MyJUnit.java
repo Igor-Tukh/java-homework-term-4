@@ -4,9 +4,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+/**
+ * Class for testing class file with MyJUnit.
+ */
 public class MyJUnit {
     private static final String HELP_STRING = "Usage: <path to file with tests> as first argument\n<filename as second>";
 
+    /**
+     * Runs all tests in a given class.
+     * @param args should consist of exactly two arguments: path to file with tests and filename in this order exactly.
+     */
     public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("Incorrect number of arguments");
