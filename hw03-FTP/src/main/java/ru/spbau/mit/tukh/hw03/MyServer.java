@@ -28,10 +28,12 @@ public class MyServer {
                             while (!Thread.interrupted()) {
                                 Utils.parseResult typeParseResult = Utils.parseServerRequestType(dataInputStream);
 
+                                boolean needToStop = false;
                                 switch (typeParseResult) {
                                     case FAILED:
                                         System.err.println("Request type parse failed: " + currentSocket.getInetAddress());
                                         currentSocket.close();
+                                        needToStop = true;
                                         break;
                                     case REQUEST_LIST:
                                         answerList(dataOutputStream, dataInputStream.readUTF());
@@ -41,6 +43,9 @@ public class MyServer {
                                         break;
                                 }
 
+                                if (needToStop) {
+                                    break;
+                                }
                             }
                         } catch (IOException e) {
                             // Nothing to do
