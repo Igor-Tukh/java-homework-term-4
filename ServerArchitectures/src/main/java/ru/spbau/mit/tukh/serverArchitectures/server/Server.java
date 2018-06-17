@@ -1,68 +1,91 @@
 package ru.spbau.mit.tukh.serverArchitectures.server;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public abstract class Server {
-    protected TestingConfiguration testingConfiguration;
-    protected TestingResults testingResults;
-    protected int port;
+    TestingConfiguration testingConfiguration;
+    TestingResults testingResults;
+    int port;
 
     public enum Metrics {
         ELEMENTS_NUMBER, CLIENTS_NUMBER, TIME_DELTA;
+
+        public String getStringValue() {
+            switch (this) {
+                case CLIENTS_NUMBER:
+                    return "clients";
+                case TIME_DELTA:
+                    return "delta";
+                default:
+                    return "elements";
+            }
+        }
     }
 
     public class TestingConfiguration {
         Metrics metrics;
-        int elements_number;
-        int clients_number;
-        int time_delta;
-        int requests_number;
-        int metrics_upper_bound;
-        int metrics_step;
+        int elementsNumber;
+        int clientsNumber;
+        int timeDelta;
+        int requestsNumber;
+        int metricsUpperBound;
+        int metricsStep;
 
-        TestingConfiguration(Metrics metrics, int elements_number, int clients_number, int time_delta,
-                             int request_number, int metrics_upper_bound, int metrics_step) {
+        TestingConfiguration(Metrics metrics, int elementsNumber, int clientsNumber, int timeDelta,
+                             int requestNumber, int metricsUpperBound, int metricsStep) {
             this.metrics = metrics;
-            this.elements_number = elements_number;
-            this.clients_number = clients_number;
-            this.time_delta = time_delta;
-            this.requests_number = request_number;
-            this.metrics_upper_bound = metrics_upper_bound;
-            this.metrics_step = metrics_step;
+            this.elementsNumber = elementsNumber;
+            this.clientsNumber = clientsNumber;
+            this.timeDelta = timeDelta;
+            this.requestsNumber = requestNumber;
+            this.metricsUpperBound = metricsUpperBound;
+            this.metricsStep = metricsStep;
         }
 
-        public boolean testingIsOver() {
+        boolean testingIsOver() {
             int current_value;
 
             switch (metrics) {
                 case CLIENTS_NUMBER:
-                    current_value = clients_number;
+                    current_value = clientsNumber;
                     break;
                 case ELEMENTS_NUMBER:
-                    current_value = elements_number;
+                    current_value = elementsNumber;
                     break;
                 default:
-                    current_value = time_delta;
+                    current_value = timeDelta;
                     break;
             }
 
-            return current_value > metrics_upper_bound;
+            return current_value > metricsUpperBound;
 
         }
 
-        public void update() {
+        void update() {
             switch (metrics) {
                 case CLIENTS_NUMBER:
-                    clients_number += metrics_step;
+                    clientsNumber += metricsStep;
                     break;
                 case ELEMENTS_NUMBER:
-                    elements_number += metrics_step;
+                    elementsNumber += metricsStep;
                     break;
                 default:
-                    time_delta += metrics_step;
+                    timeDelta += metricsStep;
                     break;
             }
+        }
+
+        void saveState(PrintWriter printWriter) {
+            printWriter.println(metrics.getStringValue());
+            printWriter.println(elementsNumber);
+            printWriter.println(clientsNumber);
+            printWriter.println(timeDelta);
+            printWriter.println(requestsNumber);
+            printWriter.println(metricsUpperBound);
+            printWriter.println(metricsStep);
         }
     }
 
@@ -74,9 +97,9 @@ public abstract class Server {
 
         public void setInitialTestingConfiguration(TestingConfiguration testingConfiguration) {
             initialTestingConfiguration = new TestingConfiguration(testingConfiguration.metrics,
-                    testingConfiguration.elements_number, testingConfiguration.clients_number,
-                    testingConfiguration.time_delta, testingConfiguration.requests_number,
-                    testingConfiguration.metrics_upper_bound, testingConfiguration.metrics_step);
+                    testingConfiguration.elementsNumber, testingConfiguration.clientsNumber,
+                    testingConfiguration.timeDelta, testingConfiguration.requestsNumber,
+                    testingConfiguration.metricsUpperBound, testingConfiguration.metricsStep);
         }
 
         public void addAveregeRequestTimeOnClient(long time) {
@@ -117,7 +140,7 @@ public abstract class Server {
         return testingResults;
     }
 
-    protected long getTimeDuringSort(int[] array) {
+    long getTimeDuringSort(int[] array) {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < array.length; i++) {
             for (int j = i + 1; j < array.length; j++) {
@@ -129,5 +152,27 @@ public abstract class Server {
             }
         }
         return System.currentTimeMillis() - startTime;
+    }
+
+    public void saveResultsToFile(String filename) {
+        if (!testingConfiguration.testingIsOver()) {
+            return;
+        }
+
+        try (PrintWriter printWriter = new PrintWriter(filename)) {
+            testingResults.initialTestingConfiguration.saveState(printWriter);
+            printWriter.println(testingResults.getAveregeRequestTimeOnClient().size());
+            for (long value: testingResults.getHandlingRequestTimeOnServer()) {
+                printWriter.print(value + " ");
+            }
+            for (long value: testingResults.getHandlingClientTimeOnServer()) {
+                printWriter.print(value + " ");
+            }
+            for (long value: testingResults.getAveregeRequestTimeOnClient()) {
+                printWriter.print(value + " ");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Error opening file");
+        }
     }
 }

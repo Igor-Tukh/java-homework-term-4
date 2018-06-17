@@ -18,13 +18,13 @@ public class ThreadForEachServer extends Server {
 
     public void startTestingIteration() throws IOException, InterruptedException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            Thread[] clientThreads = new Thread[testingConfiguration.clients_number];
+            Thread[] clientThreads = new Thread[testingConfiguration.clientsNumber];
 
             AtomicLong handlingRequestTimeOnServer = new AtomicLong(0);
             AtomicLong handlingClientTimeOnServer = new AtomicLong(0);
             AtomicLong averegeRequestTimeOnClient = new AtomicLong(0);
 
-            for (int i = 0; i < testingConfiguration.clients_number; i++) {
+            for (int i = 0; i < testingConfiguration.clientsNumber; i++) {
                 try (Socket socket = serverSocket.accept()) {
                     clientThreads[i] = new Thread(new Runnable() {
                         @Override
@@ -32,7 +32,7 @@ public class ThreadForEachServer extends Server {
                             try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                                  DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
                                 // Third metrics calculates on client, so we will receive its value after all requests
-                                for (int j = 0; j < testingConfiguration.requests_number; j++) {
+                                for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
                                     long startTime = System.currentTimeMillis();
                                     int[] array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
                                     handlingRequestTimeOnServer.addAndGet(getTimeDuringSort(array));
@@ -55,14 +55,14 @@ public class ThreadForEachServer extends Server {
             }
 
             testingResults.addHandlingClientTimeOnServer(handlingClientTimeOnServer.get()
-                    / testingConfiguration.requests_number
-                    / testingConfiguration.clients_number);
+                    / testingConfiguration.requestsNumber
+                    / testingConfiguration.clientsNumber);
             testingResults.addHandlingRequestTimeOnServer(handlingRequestTimeOnServer.get()
-                    / testingConfiguration.requests_number
-                    / testingConfiguration.clients_number);
+                    / testingConfiguration.requestsNumber
+                    / testingConfiguration.clientsNumber);
             testingResults.addAveregeRequestTimeOnClient(averegeRequestTimeOnClient.get()
-                    / testingConfiguration.requests_number
-                    / testingConfiguration.clients_number);
+                    / testingConfiguration.requestsNumber
+                    / testingConfiguration.clientsNumber);
         }
     }
 }

@@ -4,7 +4,7 @@ package ru.spbau.mit.tukh.serverArchitectures.client;
  * Class to run clients during the testing.
  */
 public class ClientTestingSession {
-    public static final String HELP_STRING = "Usage: <number of clients> <number of requests> <number of elements> " +
+    private static final String HELP_STRING = "Usage: <number of clients> <number of requests> <number of elements> " +
             "<time delta> <ip> <port> <testing metrics> <metrics step> <upper bound of testing metrics>";
 
     public static void main(String[] args) throws InterruptedException {
