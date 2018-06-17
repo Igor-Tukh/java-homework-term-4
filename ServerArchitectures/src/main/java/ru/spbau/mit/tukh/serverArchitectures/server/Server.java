@@ -25,6 +25,10 @@ public abstract class Server {
         }
     }
 
+    public enum ServerType {
+        THREAD_FOR_EACH, SINGLE_THREAD_EXECUTOR, NON_BLOCKING;
+    }
+
     public class TestingConfiguration {
         Metrics metrics;
         int elementsNumber;
