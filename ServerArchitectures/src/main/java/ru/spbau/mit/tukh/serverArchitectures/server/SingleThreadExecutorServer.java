@@ -91,7 +91,7 @@ public class SingleThreadExecutorServer extends Server {
             testingResults.addHandlingRequestTimeOnServer(handlingRequestTimeOnServer
                     / testingConfiguration.requestsNumber
                     / testingConfiguration.clientsNumber);
-            testingResults.addAveregeRequestTimeOnClient(averageRequestTimeOnClient
+            testingResults.addAverageRequestTimeOnClient(averageRequestTimeOnClient
                     / testingConfiguration.requestsNumber
                     / testingConfiguration.clientsNumber);
         }

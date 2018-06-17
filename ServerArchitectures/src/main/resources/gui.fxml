@@ -127,12 +127,12 @@
                         <Font size="30.0" />
                      </font></Button>
                </children></VBox>
-            <LineChart GridPane.rowIndex="2">
+            <LineChart fx:id="chart" GridPane.rowIndex="2">
               <xAxis>
-                <CategoryAxis side="BOTTOM" />
+                <NumberAxis side="BOTTOM" fx:id="xAxis" />
               </xAxis>
               <yAxis>
-                <NumberAxis side="LEFT" />
+                <NumberAxis side="LEFT" fx:id="yAxis"/>
               </yAxis>
             </LineChart>
          </children>

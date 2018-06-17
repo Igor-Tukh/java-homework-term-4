@@ -23,6 +23,17 @@ public abstract class Server {
                     return "elements";
             }
         }
+
+        public static Metrics getValueByString(String value) {
+            switch (value) {
+                case "clients":
+                    return CLIENTS_NUMBER;
+                case "delta":
+                    return TIME_DELTA;
+                default:
+                    return ELEMENTS_NUMBER;
+            }
+        }
     }
 
     public enum ServerType {
@@ -83,13 +94,13 @@ public abstract class Server {
         }
 
         void saveState(PrintWriter printWriter) {
-            printWriter.println(metrics.getStringValue());
             printWriter.println(elementsNumber);
             printWriter.println(clientsNumber);
             printWriter.println(timeDelta);
             printWriter.println(requestsNumber);
             printWriter.println(metricsUpperBound);
             printWriter.println(metricsStep);
+            printWriter.println(metrics.getStringValue());
         }
     }
 
@@ -106,7 +117,7 @@ public abstract class Server {
                     testingConfiguration.metricsUpperBound, testingConfiguration.metricsStep);
         }
 
-        public void addAveregeRequestTimeOnClient(long time) {
+        public void addAverageRequestTimeOnClient(long time) {
             averageRequestTimeOnClient.add(time);
         }
 
@@ -159,7 +170,7 @@ public abstract class Server {
         return System.currentTimeMillis() - startTime;
     }
 
-    public void saveResultsToFile(String filename) {
+    public void saveResultsToFile(String filename, String filename2, String filename3) {
         if (!testingConfiguration.testingIsOver()) {
             return;
         }
@@ -167,15 +178,27 @@ public abstract class Server {
         try (PrintWriter printWriter = new PrintWriter(filename)) {
             testingResults.initialTestingConfiguration.saveState(printWriter);
             printWriter.println(testingResults.getAverageRequestTimeOnClient().size());
-            for (long value: testingResults.getHandlingRequestTimeOnServer()) {
+            for (long value : testingResults.getHandlingRequestTimeOnServer()) {
                 printWriter.print(value + " ");
             }
-            printWriter.println();
-            for (long value: testingResults.getHandlingClientTimeOnServer()) {
+        } catch (FileNotFoundException e) {
+            System.out.println("Error opening file");
+        }
+
+        try (PrintWriter printWriter = new PrintWriter(filename2)) {
+            testingResults.initialTestingConfiguration.saveState(printWriter);
+            printWriter.println(testingResults.getAverageRequestTimeOnClient().size());
+            for (long value : testingResults.getHandlingClientTimeOnServer()) {
                 printWriter.print(value + " ");
             }
-            printWriter.println();
-            for (long value: testingResults.getAverageRequestTimeOnClient()) {
+        } catch (FileNotFoundException e) {
+            System.out.println("Error opening file");
+        }
+
+        try (PrintWriter printWriter = new PrintWriter(filename3)) {
+            testingResults.initialTestingConfiguration.saveState(printWriter);
+            printWriter.println(testingResults.getAverageRequestTimeOnClient().size());
+            for (long value : testingResults.getAverageRequestTimeOnClient()) {
                 printWriter.print(value + " ");
             }
         } catch (FileNotFoundException e) {

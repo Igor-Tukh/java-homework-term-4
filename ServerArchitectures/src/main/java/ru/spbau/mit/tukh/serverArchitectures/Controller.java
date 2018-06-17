@@ -1,7 +1,11 @@
 package ru.spbau.mit.tukh.serverArchitectures;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
@@ -9,7 +13,10 @@ import ru.spbau.mit.tukh.serverArchitectures.server.Server;
 import ru.spbau.mit.tukh.serverArchitectures.server.SingleThreadExecutorServer;
 import ru.spbau.mit.tukh.serverArchitectures.server.ThreadForEachServer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Controller {
     private Server.Metrics metrics = Server.Metrics.TIME_DELTA;
@@ -28,6 +35,15 @@ public class Controller {
     public static void setScene(Scene scene) {
         Controller.scene = scene;
     }
+
+    private static final String path = "/home/igor/AU/2nd course/java-term-4/java-homework-term-4/ServerArchitectures/" +
+            "src/main/resources/";
+
+    @FXML
+    private NumberAxis xAxis;
+
+    @FXML
+    private NumberAxis yAxis;
 
     public void onArchitectureChose(ActionEvent actionEvent) {
         switch (((MenuItem) actionEvent.getTarget()).getId()) {
@@ -116,10 +132,57 @@ public class Controller {
         }
         try {
             server.startTesting();
-            server.saveResultsToFile("output");
+            server.saveResultsToFile(path + "output0", path + "output1", path + "output2");
+            drawResults();
         } catch (IOException | InterruptedException e) {
             showErrorMessage("Error during testing");
-            return;
         }
+    }
+
+    private void drawResults() {
+        LineChart<Integer, Integer> lineChart = (LineChart<Integer, Integer>) scene.lookup("#chart");
+        lineChart.setTitle("Metrics dependency");
+        XYChart.Series series[] = new XYChart.Series[3];
+        series[0] = new XYChart.Series<Integer, Integer>();
+        series[0].setName("Handling request time on server");
+        series[1] = new XYChart.Series<Integer, Integer>();
+        series[1].setName("Handling client time on server");
+        series[2] = new XYChart.Series<Integer, Integer>();
+        series[2].setName("Average request time on client");
+
+        yAxis.setLabel("time, ms");
+        for(int i = 0; i < 3; i++) {
+            try (Scanner scanner = new Scanner(new File(path + "output" + i))) {
+                int elementsCnt = scanner.nextInt();
+                int clientsNumber = scanner.nextInt();
+                int timeDelta = scanner.nextInt();
+                int requestsNumber = scanner.nextInt();
+                int metricsUpperBound = scanner.nextInt();
+                int metricsStep = scanner.nextInt();
+                Server.Metrics metrics = Server.Metrics.getValueByString(scanner.next());
+                int n = scanner.nextInt();
+                int value;
+                xAxis.setLabel(metrics.getStringValue());
+                switch (metrics) {
+                    case TIME_DELTA:
+                        value = timeDelta;
+                        break;
+                    case CLIENTS_NUMBER:
+                        value = clientsNumber;
+                        break;
+                    default:
+                        value = elementsCnt;
+                        break;
+                }
+
+                for(int j = 0; j < n; j++, value += metricsStep) {
+                    series[i].getData().add(new XYChart.Data<>(value, scanner.nextInt()));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        lineChart.getData().addAll(series[0], series[1], series[2]);
     }
 }
