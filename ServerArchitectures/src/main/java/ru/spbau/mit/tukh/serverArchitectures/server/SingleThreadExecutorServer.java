@@ -7,8 +7,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class ThreadForEachServer extends Server {
+public class SingleThreadExecutorServer extends Server {
     private long handlingRequestTimeOnServer;
     private long handlingClientTimeOnServer;
     private long averageRequestTimeOnClient;
@@ -25,7 +27,7 @@ public class ThreadForEachServer extends Server {
         averageRequestTimeOnClient += value;
     }
 
-    public ThreadForEachServer(TestingConfiguration testingConfiguration, int port) {
+    public SingleThreadExecutorServer(TestingConfiguration testingConfiguration, int port) {
         this.testingConfiguration = testingConfiguration;
         this.testingResults = new TestingResults();
         this.port = port;
@@ -39,27 +41,43 @@ public class ThreadForEachServer extends Server {
             handlingClientTimeOnServer = 0;
             averageRequestTimeOnClient = 0;
 
+            ExecutorService threadPool = Executors.newFixedThreadPool(4);
+
             for (int i = 0; i < testingConfiguration.clientsNumber; i++) {
-                try (Socket socket = serverSocket.accept()) {
-                    clientThreads[i] = new Thread(() -> {
+                clientThreads[i] = new Thread(() -> {
+                    try {
+                        Socket socket = serverSocket.accept();
+                        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
                         try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                              DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
-                            // Third metrics calculates on client, so we will receive its value after all requests
-                            for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
-                                long startTime = System.currentTimeMillis();
-                                int[] array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
-                                addHandlingRequestTimeOnServer(getTimeDuringSort(array));
-                                Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
-                                dataOutputStream.flush();
-                                addHandlingClientTimeOnServer(System.currentTimeMillis() - startTime);
-                            }
+                            threadPool.submit(() -> {
+                                for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
+                                    long startTime = System.currentTimeMillis();
+                                    int[] array = new int[0];
+                                    try {
+                                        array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
+                                    } catch (IOException e) {
+                                        e.printStackTrace(); // Nothing to do here;
+                                    }
+                                    addHandlingRequestTimeOnServer(getTimeDuringSort(array));
+                                    int[] finalArray = array;
+                                    singleThreadExecutor.submit(() -> {
+                                        try {
+                                            Serialize.writeArrayToDataOutputStream(dataOutputStream, finalArray);
+                                            dataOutputStream.flush();
+                                        } catch (IOException e) {
+                                            e.printStackTrace(); // Nothing to do here
+                                        }
+                                        addHandlingClientTimeOnServer(System.currentTimeMillis() - startTime);
+                                    });
+                                }
+                            });
                             addAveregeRequestTimeOnClient(dataInputStream.readLong());
-                        } catch (IOException e) {
-                            // Nothing to do here
                         }
-                    });
-                    clientThreads[i].start();
-                }
+                    } catch (IOException e) {
+                        e.printStackTrace(); // Nothing to do here
+                    }
+                });
             }
 
             for (Thread clientThread : clientThreads) {

@@ -91,7 +91,7 @@ public abstract class Server {
 
     public class TestingResults {
         private TestingConfiguration initialTestingConfiguration;
-        private ArrayList<Long> averegeRequestTimeOnClient;
+        private ArrayList<Long> averageRequestTimeOnClient;
         private ArrayList<Long> handlingRequestTimeOnServer;
         private ArrayList<Long> handlingClientTimeOnServer;
 
@@ -103,7 +103,7 @@ public abstract class Server {
         }
 
         public void addAveregeRequestTimeOnClient(long time) {
-            averegeRequestTimeOnClient.add(time);
+            averageRequestTimeOnClient.add(time);
         }
 
         public void addHandlingRequestTimeOnServer(long time) {
@@ -114,8 +114,8 @@ public abstract class Server {
             handlingClientTimeOnServer.add(time);
         }
 
-        public ArrayList<Long> getAveregeRequestTimeOnClient() {
-            return averegeRequestTimeOnClient;
+        public ArrayList<Long> getAverageRequestTimeOnClient() {
+            return averageRequestTimeOnClient;
         }
 
         public ArrayList<Long> getHandlingClientTimeOnServer() {
@@ -161,14 +161,14 @@ public abstract class Server {
 
         try (PrintWriter printWriter = new PrintWriter(filename)) {
             testingResults.initialTestingConfiguration.saveState(printWriter);
-            printWriter.println(testingResults.getAveregeRequestTimeOnClient().size());
+            printWriter.println(testingResults.getAverageRequestTimeOnClient().size());
             for (long value: testingResults.getHandlingRequestTimeOnServer()) {
                 printWriter.print(value + " ");
             }
             for (long value: testingResults.getHandlingClientTimeOnServer()) {
                 printWriter.print(value + " ");
             }
-            for (long value: testingResults.getAveregeRequestTimeOnClient()) {
+            for (long value: testingResults.getAverageRequestTimeOnClient()) {
                 printWriter.print(value + " ");
             }
         } catch (FileNotFoundException e) {
