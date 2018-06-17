@@ -68,9 +68,9 @@ public abstract class Server {
 
     public class TestingResults {
         private TestingConfiguration initialTestingConfiguration;
-        private ArrayList<Double> averegeRequestTimeOnClient;
-        private ArrayList<Integer> handlingRequestTimeOnServer;
-        private ArrayList<Integer> handlingClientTimeOnServer;
+        private ArrayList<Long> averegeRequestTimeOnClient;
+        private ArrayList<Long> handlingRequestTimeOnServer;
+        private ArrayList<Long> handlingClientTimeOnServer;
 
         public void setInitialTestingConfiguration(TestingConfiguration testingConfiguration) {
             initialTestingConfiguration = new TestingConfiguration(testingConfiguration.metrics,
@@ -79,34 +79,34 @@ public abstract class Server {
                     testingConfiguration.metrics_upper_bound, testingConfiguration.metrics_step);
         }
 
-        public void addAveregeRequestTimeOnClient(double time) {
+        public void addAveregeRequestTimeOnClient(long time) {
             averegeRequestTimeOnClient.add(time);
         }
 
-        public void addHandlingRequestTimeOnServer(int time) {
+        public void addHandlingRequestTimeOnServer(long time) {
             handlingRequestTimeOnServer.add(time);
         }
 
-        public void addHandlingClientTimeOnServer(int time) {
+        public void addHandlingClientTimeOnServer(long time) {
             handlingClientTimeOnServer.add(time);
         }
 
-        public ArrayList<Double> getAveregeRequestTimeOnClient() {
+        public ArrayList<Long> getAveregeRequestTimeOnClient() {
             return averegeRequestTimeOnClient;
         }
 
-        public ArrayList<Integer> getHandlingClientTimeOnServer() {
+        public ArrayList<Long> getHandlingClientTimeOnServer() {
             return handlingClientTimeOnServer;
         }
 
-        public ArrayList<Integer> getHandlingRequestTimeOnServer() {
+        public ArrayList<Long> getHandlingRequestTimeOnServer() {
             return handlingRequestTimeOnServer;
         }
     }
 
-    protected abstract void startTestingIteration() throws IOException;
+    protected abstract void startTestingIteration() throws IOException, InterruptedException;
 
-    public void startTesting() throws IOException {
+    public void startTesting() throws IOException, InterruptedException {
         testingResults.setInitialTestingConfiguration(testingConfiguration);
         for (; !testingConfiguration.testingIsOver(); testingConfiguration.update()) {
             startTestingIteration();
@@ -115,5 +115,19 @@ public abstract class Server {
 
     public TestingResults getTestingResults() {
         return testingResults;
+    }
+
+    protected long getTimeDuringSort(int[] array) {
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < array.length; i++) {
+            for (int j = i + 1; j < array.length; j++) {
+                if (array[i] > array[j]) {
+                    int k = array[j];
+                    array[j] = array[i];
+                    array[i] = k;
+                }
+            }
+        }
+        return System.currentTimeMillis() - startTime;
     }
 }
