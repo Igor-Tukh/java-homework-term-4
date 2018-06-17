@@ -21,7 +21,7 @@ public class ThreadForEachServer extends Server {
         handlingClientTimeOnServer += value;
     }
 
-    synchronized public void addAveregeRequestTimeOnClient(long value) {
+    synchronized public void addAverageRequestTimeOnClient(long value) {
         averageRequestTimeOnClient += value;
     }
 
@@ -40,26 +40,27 @@ public class ThreadForEachServer extends Server {
             averageRequestTimeOnClient = 0;
 
             for (int i = 0; i < testingConfiguration.clientsNumber; i++) {
-                try (Socket socket = serverSocket.accept()) {
-                    clientThreads[i] = new Thread(() -> {
-                        try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-                             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
-                            // Third metrics calculates on client, so we will receive its value after all requests
-                            for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
-                                long startTime = System.currentTimeMillis();
-                                int[] array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
-                                addHandlingRequestTimeOnServer(getTimeDuringSort(array));
-                                Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
-                                dataOutputStream.flush();
-                                addHandlingClientTimeOnServer(System.currentTimeMillis() - startTime);
-                            }
-                            addAveregeRequestTimeOnClient(dataInputStream.readLong());
-                        } catch (IOException e) {
-                            // Nothing to do here
+                Socket socket = serverSocket.accept();
+                System.out.println("One more client added");
+                clientThreads[i] = new Thread(() -> {
+                    try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                         DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
+                        // Third metrics calculates on client, so we will receive its value after all requests
+                        for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
+                            long startTime = System.currentTimeMillis();
+                            int[] array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
+                            addHandlingRequestTimeOnServer(getTimeDuringSort(array));
+                            Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
+                            dataOutputStream.flush();
+                            addHandlingClientTimeOnServer(System.currentTimeMillis() - startTime);
                         }
-                    });
-                    clientThreads[i].start();
-                }
+                        addAverageRequestTimeOnClient(dataInputStream.readLong());
+                        socket.close();
+                    } catch (IOException e) {
+                        // Nothing to do here
+                    }
+                });
+                clientThreads[i].start();
             }
 
             for (Thread clientThread : clientThreads) {

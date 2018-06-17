@@ -6,6 +6,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import ru.spbau.mit.tukh.serverArchitectures.server.Server;
+import ru.spbau.mit.tukh.serverArchitectures.server.SingleThreadExecutorServer;
+import ru.spbau.mit.tukh.serverArchitectures.server.ThreadForEachServer;
+
+import java.io.IOException;
 
 public class Controller {
     private Server.Metrics metrics = Server.Metrics.TIME_DELTA;
@@ -18,6 +22,8 @@ public class Controller {
     private int metricsStep;
 
     private static Scene scene;
+
+    private static final int PORT = 23930;
 
     public static void setScene(Scene scene) {
         Controller.scene = scene;
@@ -60,12 +66,12 @@ public class Controller {
 
     public void onStartPressed() {
         try {
-            clientsNumber = Integer.parseInt(((TextField) scene.lookup("#clientsNumber")).getText());
-            requestsNumber = Integer.parseInt(((TextField) scene.lookup("#requestsNumber")).getText());
-            elementsNumber = Integer.parseInt(((TextField) scene.lookup("#elementsNumber")).getText());
-            timeDelta = Integer.parseInt(((TextField) scene.lookup("#timeDelta")).getText());
-            metricsUpperBound = Integer.parseInt(((TextField) scene.lookup("#metricsUpperBound")).getText());
-            metricsStep = Integer.parseInt(((TextField) scene.lookup("#metricsStep")).getText());
+            clientsNumber = Integer.parseInt(((TextField) scene.lookup("#tclientsNumber")).getText());
+            requestsNumber = Integer.parseInt(((TextField) scene.lookup("#trequestsNumber")).getText());
+            elementsNumber = Integer.parseInt(((TextField) scene.lookup("#telementsNumber")).getText());
+            timeDelta = Integer.parseInt(((TextField) scene.lookup("#ttimeDelta")).getText());
+            metricsUpperBound = Integer.parseInt(((TextField) scene.lookup("#tmetricsUpperBound")).getText());
+            metricsStep = Integer.parseInt(((TextField) scene.lookup("#tmetricsStep")).getText());
         } catch (NumberFormatException e) {
             showErrorMessage("Incorrect input (can't parse integer)");
             return;
@@ -91,6 +97,28 @@ public class Controller {
 
         if (metricsStep < 0) {
             showErrorMessage("Metrics step should be positive");
+            return;
+        }
+
+        Server.TestingConfiguration testingConfiguration = new Server.TestingConfiguration(metrics, elementsNumber,
+                clientsNumber, timeDelta, requestsNumber, metricsUpperBound, metricsStep);
+
+        Server server;
+        switch (serverType) {
+            case THREAD_FOR_EACH:
+                server = new ThreadForEachServer(testingConfiguration, PORT);
+                break;
+            case SINGLE_THREAD_EXECUTOR:
+                server = new SingleThreadExecutorServer(testingConfiguration, PORT);
+                break;
+            default:
+                return;
+        }
+        try {
+            server.startTesting();
+            server.saveResultsToFile("output");
+        } catch (IOException | InterruptedException e) {
+            showErrorMessage("Error during testing");
             return;
         }
     }

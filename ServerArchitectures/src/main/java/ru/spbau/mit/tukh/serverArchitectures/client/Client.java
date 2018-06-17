@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Client {
@@ -37,17 +38,18 @@ public class Client {
                     fillRandomValues();
                     Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
                     dataOutputStream.flush();
-                    array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
+                    int[] array1 = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
+                    if (!compare(array, array1)) {
+                        System.err.println("Incorrect response");
+                    }
                     Thread.sleep(time_delta);
                 }
                 dataOutputStream.writeLong(System.currentTimeMillis() - startTime);
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                // Nothing to do here
+                e.printStackTrace(); // Nothing to do here
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            // Nothing to do here
+            e.printStackTrace(); // Nothing to do here
         }
     }
 
@@ -55,5 +57,22 @@ public class Client {
         for (int i = 0; i < elements_number; i++) {
             array[i] = random.nextInt();
         }
+    }
+
+    // Method only for checking if response is correct
+    private boolean compare(int[] first, int[] second) {
+        if (first.length != second.length) {
+            return false;
+        }
+
+        Arrays.sort(first);
+
+        for (int i = 0; i < first.length; i++) {
+            if (first[i] != second[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -29,7 +29,7 @@ public abstract class Server {
         THREAD_FOR_EACH, SINGLE_THREAD_EXECUTOR, NON_BLOCKING;
     }
 
-    public class TestingConfiguration {
+    public static class TestingConfiguration {
         Metrics metrics;
         int elementsNumber;
         int clientsNumber;
@@ -38,7 +38,7 @@ public abstract class Server {
         int metricsUpperBound;
         int metricsStep;
 
-        TestingConfiguration(Metrics metrics, int elementsNumber, int clientsNumber, int timeDelta,
+        public TestingConfiguration(Metrics metrics, int elementsNumber, int clientsNumber, int timeDelta,
                              int requestNumber, int metricsUpperBound, int metricsStep) {
             this.metrics = metrics;
             this.elementsNumber = elementsNumber;
@@ -95,9 +95,9 @@ public abstract class Server {
 
     public class TestingResults {
         private TestingConfiguration initialTestingConfiguration;
-        private ArrayList<Long> averageRequestTimeOnClient;
-        private ArrayList<Long> handlingRequestTimeOnServer;
-        private ArrayList<Long> handlingClientTimeOnServer;
+        private ArrayList<Long> averageRequestTimeOnClient = new ArrayList<>();
+        private ArrayList<Long> handlingRequestTimeOnServer = new ArrayList<>();
+        private ArrayList<Long> handlingClientTimeOnServer = new ArrayList<>();
 
         public void setInitialTestingConfiguration(TestingConfiguration testingConfiguration) {
             initialTestingConfiguration = new TestingConfiguration(testingConfiguration.metrics,
@@ -136,6 +136,7 @@ public abstract class Server {
     public void startTesting() throws IOException, InterruptedException {
         testingResults.setInitialTestingConfiguration(testingConfiguration);
         for (; !testingConfiguration.testingIsOver(); testingConfiguration.update()) {
+            System.out.println("Started new testing iteration");
             startTestingIteration();
         }
     }
@@ -169,9 +170,11 @@ public abstract class Server {
             for (long value: testingResults.getHandlingRequestTimeOnServer()) {
                 printWriter.print(value + " ");
             }
+            printWriter.println();
             for (long value: testingResults.getHandlingClientTimeOnServer()) {
                 printWriter.print(value + " ");
             }
+            printWriter.println();
             for (long value: testingResults.getAverageRequestTimeOnClient()) {
                 printWriter.print(value + " ");
             }

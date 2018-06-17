@@ -44,23 +44,23 @@ public class SingleThreadExecutorServer extends Server {
             ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
             for (int i = 0; i < testingConfiguration.clientsNumber; i++) {
+                ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+                Socket socket = serverSocket.accept();
                 clientThreads[i] = new Thread(() -> {
                     try {
-                        Socket socket = serverSocket.accept();
-                        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
                         try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                              DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
-                            threadPool.submit(() -> {
-                                for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
-                                    long startTime = System.currentTimeMillis();
-                                    int[] array = new int[0];
-                                    try {
-                                        array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
-                                    } catch (IOException e) {
-                                        e.printStackTrace(); // Nothing to do here;
-                                    }
-                                    addHandlingRequestTimeOnServer(getTimeDuringSort(array));
-                                    int[] finalArray = array;
+                            for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
+                                long startTime = System.currentTimeMillis();
+                                int[] array = new int[0];
+                                try {
+                                    array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
+                                } catch (IOException e) {
+                                    e.printStackTrace(); // Nothing to do here;
+                                }
+                                int[] finalArray = array;
+                                threadPool.submit(() -> {
+                                    addHandlingRequestTimeOnServer(getTimeDuringSort(finalArray));
                                     singleThreadExecutor.submit(() -> {
                                         try {
                                             Serialize.writeArrayToDataOutputStream(dataOutputStream, finalArray);
@@ -70,14 +70,15 @@ public class SingleThreadExecutorServer extends Server {
                                         }
                                         addHandlingClientTimeOnServer(System.currentTimeMillis() - startTime);
                                     });
-                                }
-                            });
+                                });
+                            }
                             addAveregeRequestTimeOnClient(dataInputStream.readLong());
                         }
                     } catch (IOException e) {
                         e.printStackTrace(); // Nothing to do here
                     }
                 });
+                clientThreads[i].start();
             }
 
             for (Thread clientThread : clientThreads) {

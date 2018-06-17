@@ -25,6 +25,8 @@ public class ClientTestingSession {
 
 
         while (true) {
+            System.out.println("Client testing session started");
+
             Thread[] clientThreads = new Thread[numberOfClients];
 
             for (int i = 0; i < numberOfClients; i++) {
