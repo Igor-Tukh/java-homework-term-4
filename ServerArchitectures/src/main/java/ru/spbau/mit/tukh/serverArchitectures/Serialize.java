@@ -13,12 +13,16 @@ import java.util.stream.Collectors;
  * Class to serialize and deserialize int arrays using ArrayProtos.
  */
 public class Serialize {
-    private static byte[] serializeArray(int[] array) {
+    public static byte[] serializeArray(int[] array) {
         List<Integer> list = intListFromArray(array);
         return ArrayProtos.Array.newBuilder().addAllData(list).build().toByteArray();
     }
 
     private static int[] deserializeArray(byte[] data) throws InvalidProtocolBufferException {
+        return intArrayFromList(ArrayProtos.Array.parseFrom(data).getDataList());
+    }
+
+    public static int[] deserializeArrayFromByteArray(byte[] data) throws IOException {
         return intArrayFromList(ArrayProtos.Array.parseFrom(data).getDataList());
     }
 

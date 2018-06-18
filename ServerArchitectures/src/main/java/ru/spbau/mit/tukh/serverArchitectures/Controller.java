@@ -9,6 +9,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import ru.spbau.mit.tukh.serverArchitectures.server.NonBlockingServer;
 import ru.spbau.mit.tukh.serverArchitectures.server.Server;
 import ru.spbau.mit.tukh.serverArchitectures.server.SingleThreadExecutorServer;
 import ru.spbau.mit.tukh.serverArchitectures.server.ThreadForEachServer;
@@ -128,7 +129,8 @@ public class Controller {
                 server = new SingleThreadExecutorServer(testingConfiguration, PORT);
                 break;
             default:
-                return;
+                server = new NonBlockingServer(testingConfiguration, PORT);
+                break;
         }
         try {
             server.startTesting();
