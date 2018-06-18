@@ -29,6 +29,7 @@ public class Client {
     }
 
     public void execute() {
+        System.out.println("One more client started");
         try {
             Socket socket = new Socket(InetAddress.getByName(ip), port);
             try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
@@ -38,9 +39,12 @@ public class Client {
                     fillRandomValues();
                     Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
                     dataOutputStream.flush();
+                    System.out.println("One more data package was send");
                     int[] array1 = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
                     if (!compare(array, array1)) {
                         System.err.println("Incorrect response");
+                    } else {
+                        System.out.println("Correct response");
                     }
                     Thread.sleep(time_delta);
                 }

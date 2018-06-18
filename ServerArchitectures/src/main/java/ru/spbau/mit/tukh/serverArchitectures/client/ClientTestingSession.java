@@ -8,9 +8,10 @@ public class ClientTestingSession {
             "<time delta> <ip> <port> <testing metrics> <metrics step> <upper bound of testing metrics>";
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length != 6) {
+        if (args.length != 9) {
             System.out.println("Incorrect number of arguments");
             System.out.println(HELP_STRING);
+            System.exit(0);
         }
 
         int numberOfClients = Integer.parseInt(args[0]);
@@ -61,6 +62,7 @@ public class ClientTestingSession {
                 }
             }
 
+            Thread.sleep(2000); // To be sure
         }
     }
 }

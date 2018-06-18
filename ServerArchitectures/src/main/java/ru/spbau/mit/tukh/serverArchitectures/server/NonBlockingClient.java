@@ -1,5 +1,6 @@
 package ru.spbau.mit.tukh.serverArchitectures.server;
 
+import org.omg.CORBA.SystemException;
 import ru.spbau.mit.tukh.serverArchitectures.Serialize;
 
 import java.io.IOException;
@@ -8,13 +9,13 @@ import java.nio.channels.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class NonBlockingClient {
-    private final static int BUFFER_SIZE = 131072; // it is enough for testing
+    private final static int BUFFER_SIZE = 524288; // it is enough for testing
 
     private ConcurrentLinkedQueue<ResponseInfo> responsesInfo = new ConcurrentLinkedQueue<>();
 
     private SocketChannel socketChannel;
     private ByteBuffer readingBuffer;
-    private ByteBuffer writingBuffer;
+    private final ByteBuffer writingBuffer;
     private NonBlockingServer server;
 
     private int responses;
@@ -31,7 +32,6 @@ public class NonBlockingClient {
         readingBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         writingBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         writingBuffer.flip();
-        waitingForArray = true;
     }
 
     public void registerInReadSelector(Selector selector) {
@@ -58,49 +58,53 @@ public class NonBlockingClient {
 
         readingBuffer.flip();
 
-        if (requests == server.testingConfiguration.requestsNumber) {
-            if (readingBuffer.remaining() >= 8) {
-                long time = readingBuffer.getLong();
-                server.addAverageRequestTimeOnClient(time);
-                haveGotFinalTime = true;
-                markIfNeed();
-            } else {
-                return;
-            }
-        }
-
         while (readingBuffer.hasRemaining()) {
-            if (waitingForArray) {
-                message[pos++] = readingBuffer.get();
-            } else {
-                if (readingBuffer.remaining() < 4) {
-                    readingBuffer.compact();
-                    break;
+            if (requests == server.testingConfiguration.requestsNumber) {
+                if (!haveGotFinalTime && readingBuffer.remaining() >= 8) {
+                    long time = readingBuffer.getLong();
+                    server.addAverageRequestTimeOnClient(time);
+                    haveGotFinalTime = true;
+                    markIfNeed();
                 } else {
-                    int size = readingBuffer.getInt();
-                    message = new byte[size];
-                    waitingForArray = true;
-                    pos = 0;
+                    break;
                 }
-            }
+            } else {
+                if (waitingForArray) {
+                    message[pos++] = readingBuffer.get();
+                } else {
+                    if (readingBuffer.remaining() < 4) {
+                        break;
+                    } else {
+                        int size = readingBuffer.getInt();
+                        message = new byte[size];
+                        waitingForArray = true;
+                        pos = 0;
+                    }
+                }
 
-            if (pos == message.length) {
-                long startTime = System.currentTimeMillis();
-                int[] array = new int[0];
-                try {
-                    array = Serialize.deserializeArrayFromByteArray(message);
-                } catch (IOException e) {
-                    e.printStackTrace(); // Nothing to do here;
+                if (waitingForArray && pos == message.length) {
+                    waitingForArray = false;
+                    pos = 0;
+                    long startTime = System.currentTimeMillis();
+                    int[] array = new int[0];
+                    try {
+                        array = Serialize.deserializeArrayFromByteArray(message);
+                    } catch (IOException e) {
+                        System.exit(0);
+                        e.printStackTrace(); // Nothing to do here;
+                    }
+                    int[] finalArray = array;
+                    server.threadPool.submit(() -> {
+                        server.addHandlingRequestTimeOnServer(server.getTimeDuringSort(finalArray));
+                        putToBuffer(startTime, finalArray);
+                    });
+                    requests++;
+                    markIfNeed();
                 }
-                int[] finalArray = array;
-                server.threadPool.submit(() -> {
-                    server.addHandlingRequestTimeOnServer(server.getTimeDuringSort(finalArray));
-                    putToBuffer(startTime, finalArray);
-                });
-                requests++;
-                markIfNeed();
             }
         }
+
+        readingBuffer.compact();
     }
 
     public void write() throws IOException {
@@ -128,8 +132,8 @@ public class NonBlockingClient {
                     current -= wrote;
                     wrote = 0;
                 } else {
-                    current = 0;
                     wrote -= current;
+                    current = 0;
                 }
                 responsesInfo.peek().setSize(current);
 
@@ -145,7 +149,7 @@ public class NonBlockingClient {
     }
 
     public boolean over() {
-        return responses == server.testingConfiguration.requestsNumber && requests == server.testingConfiguration.requestsNumber;
+        return marked;
     }
 
     private void putToBuffer(long startTime, int[] array) {
@@ -166,6 +170,7 @@ public class NonBlockingClient {
         if (responses != server.testingConfiguration.requestsNumber) {
             return;
         }
+
         if (!haveGotFinalTime) {
             return;
         }
@@ -178,6 +183,9 @@ public class NonBlockingClient {
         server.clientsFinished.addAndGet(1);
         if (server.clientsFinished.get() == server.testingConfiguration.clientsNumber) {
             server.testingIsOver.set(true);
+            System.out.println("Over");
+            server.readThread.interrupt();
+            server.writeThread.interrupt();
         }
     }
 

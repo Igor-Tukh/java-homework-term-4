@@ -28,15 +28,16 @@ public class NonBlockingServer extends Server {
         averageRequestTimeOnClient += value;
     }
 
-    AtomicBoolean testingIsOver = new AtomicBoolean(false);
-    AtomicInteger clientsFinished = new AtomicInteger(0);
+    AtomicBoolean testingIsOver;
+    AtomicInteger clientsFinished;
 
     private ServerSocketChannel serverSocketChannel;
     private Selector readSelector;
     private Selector writeSelector;
+
     ExecutorService threadPool;
-    private Thread readThread;
-    private Thread writeThread;
+    Thread readThread;
+    Thread writeThread;
 
     private ConcurrentLinkedQueue<NonBlockingClient> readRegisterQueue = new ConcurrentLinkedQueue<>();
     private ConcurrentLinkedQueue<NonBlockingClient> writeRegisterQueue = new ConcurrentLinkedQueue<>();
@@ -44,9 +45,16 @@ public class NonBlockingServer extends Server {
     public NonBlockingServer(TestingConfiguration testingConfiguration, int port) {
         this.testingConfiguration = testingConfiguration;
         this.testingResults = new TestingResults();
+        this.port = port;
         serverSocketChannel = null;
+    }
 
+    public void startTestingIteration() throws IOException, InterruptedException {
         try {
+            testingIsOver = new AtomicBoolean(false);
+            clientsFinished = new AtomicInteger(0);
+            readRegisterQueue.clear();
+            writeRegisterQueue.clear();
             serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.socket().bind(new InetSocketAddress(port));
             readSelector = Selector.open();
@@ -54,57 +62,58 @@ public class NonBlockingServer extends Server {
             threadPool = Executors.newFixedThreadPool(4);
 
             readThread = new Thread(() -> {
-                while (!testingIsOver.get()) {
+                while (!testingIsOver.get() && !Thread.interrupted()) {
                     while (readRegisterQueue.size() > 0) {
                         NonBlockingClient client = readRegisterQueue.poll();
                         client.registerInReadSelector(readSelector);
                     }
-                }
 
-                try {
-                    if (readSelector.select() > 0) {
-                        Set<SelectionKey> selectedKeys = readSelector.selectedKeys();
-                        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+                    try {
+                        if (readSelector.select() > 0) {
+                            Set<SelectionKey> selectedKeys = readSelector.selectedKeys();
+                            Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-                        for (; keyIterator.hasNext(); keyIterator.remove()) {
-                            SelectionKey selectionKey = keyIterator.next();
-                            NonBlockingClient attachedClient = (NonBlockingClient) selectionKey.attachment();
+                            for (; keyIterator.hasNext(); keyIterator.remove()) {
+                                SelectionKey selectionKey = keyIterator.next();
+                                NonBlockingClient attachedClient = (NonBlockingClient) selectionKey.attachment();
 
-                            if (!attachedClient.over()) {
-                                attachedClient.read();
+                                if (!attachedClient.over()) {
+                                    attachedClient.read();
+                                }
                             }
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             });
             readThread.start();
 
             writeThread = new Thread(() -> {
-                while (!testingIsOver.get()) {
+                while (!testingIsOver.get() && !Thread.interrupted()) {
                     while (writeRegisterQueue.size() > 0) {
                         NonBlockingClient client = writeRegisterQueue.poll();
                         client.registerInWriteSelector(writeSelector);
                     }
-                }
 
-                try {
-                    if (readSelector.select() > 0) {
-                        Set<SelectionKey> selectedKeys = writeSelector.selectedKeys();
-                        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-                        for (; keyIterator.hasNext(); keyIterator.remove()) {
-                            SelectionKey selectionKey = keyIterator.next();
-                            NonBlockingClient attachedClient = (NonBlockingClient) selectionKey.attachment();
+                    try {
+                        if (writeSelector.select() > 0) {
+                            Set<SelectionKey> selectedKeys = writeSelector.selectedKeys();
+                            Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-                            if (!attachedClient.over()) {
-                                attachedClient.write();
+                            for (; keyIterator.hasNext(); keyIterator.remove()) {
+                                SelectionKey selectionKey = keyIterator.next();
+                                NonBlockingClient attachedClient = (NonBlockingClient) selectionKey.attachment();
+
+                                if (!attachedClient.over()) {
+                                    attachedClient.write();
+                                }
                             }
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             });
             writeThread.start();
@@ -112,10 +121,9 @@ public class NonBlockingServer extends Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
-    public void startTestingIteration() throws IOException, InterruptedException {
         for (int i = 0; i < testingConfiguration.clientsNumber; i++) {
+            System.out.println("One more client");
             SocketChannel channel = serverSocketChannel.accept();
             channel.configureBlocking(false);
             NonBlockingClient client = new NonBlockingClient(channel, this);
@@ -141,5 +149,7 @@ public class NonBlockingServer extends Server {
         testingResults.addAverageRequestTimeOnClient(averageRequestTimeOnClient
                 / testingConfiguration.requestsNumber
                 / testingConfiguration.clientsNumber);
+
+        System.out.println("Iteration is over");
     }
 }
