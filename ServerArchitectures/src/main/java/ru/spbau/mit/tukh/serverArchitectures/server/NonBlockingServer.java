@@ -131,5 +131,15 @@ public class NonBlockingServer extends Server {
         writeSelector.close();
         readSelector.close();
         serverSocketChannel.close();
+
+        testingResults.addHandlingClientTimeOnServer(handlingClientTimeOnServer
+                / testingConfiguration.requestsNumber
+                / testingConfiguration.clientsNumber);
+        testingResults.addHandlingRequestTimeOnServer(handlingRequestTimeOnServer
+                / testingConfiguration.requestsNumber
+                / testingConfiguration.clientsNumber);
+        testingResults.addAverageRequestTimeOnClient(averageRequestTimeOnClient
+                / testingConfiguration.requestsNumber
+                / testingConfiguration.clientsNumber);
     }
 }
