@@ -37,8 +37,7 @@ public class Controller {
         Controller.scene = scene;
     }
 
-    private static final String path = "/home/igor/AU/2nd course/java-term-4/java-homework-term-4/ServerArchitectures/" +
-            "src/main/resources/";
+    private static final String path = "src/main/resources/";
 
     @FXML
     private NumberAxis xAxis;

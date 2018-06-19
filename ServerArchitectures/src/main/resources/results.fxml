@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.spbau.mit.tukh.serverArchitectures.Controller">
+   <center>
+      <GridPane BorderPane.alignment="CENTER">
+          <columnConstraints>
+              <ColumnConstraints percentWidth="100.0" />
+          </columnConstraints>
+          <rowConstraints>
+              <RowConstraints />
+              <RowConstraints percentHeight="100.0" />
+          </rowConstraints>
+         <children>
+            <LineChart GridPane.rowIndex="1">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </LineChart>
+         </children>
+      </GridPane>
+   </center>
+</BorderPane>

@@ -49,15 +49,20 @@ public class ThreadForEachServer extends Server {
                         for (int j = 0; j < testingConfiguration.requestsNumber; j++) {
                             long startTime = System.currentTimeMillis();
                             int[] array = Serialize.deserializeArrayFromDataInputStream(dataInputStream);
+
                             addHandlingRequestTimeOnServer(getTimeDuringSort(array));
                             Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
                             dataOutputStream.flush();
                             addHandlingClientTimeOnServer(System.currentTimeMillis() - startTime);
                         }
                         addAverageRequestTimeOnClient(dataInputStream.readLong());
+                    } catch (IOException e) {
+                        e.printStackTrace(); // Nothing to do here
+                    }
+                    try {
                         socket.close();
                     } catch (IOException e) {
-                        // Nothing to do here
+                        e.printStackTrace(); // Nothing to do here
                     }
                 });
                 clientThreads[i].start();

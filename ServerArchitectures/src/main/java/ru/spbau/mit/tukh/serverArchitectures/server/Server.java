@@ -148,6 +148,7 @@ public abstract class Server {
         testingResults.setInitialTestingConfiguration(testingConfiguration);
         for (; !testingConfiguration.testingIsOver(); testingConfiguration.update()) {
             System.out.println("Started new testing iteration");
+            System.out.println(testingConfiguration.metrics.getStringValue());
             startTestingIteration();
         }
     }

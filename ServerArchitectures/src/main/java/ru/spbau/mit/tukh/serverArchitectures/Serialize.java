@@ -29,7 +29,10 @@ public class Serialize {
     public static int[] deserializeArrayFromDataInputStream(DataInputStream dataInputStream) throws IOException {
         int messageLength = dataInputStream.readInt();
         byte[] data = new byte[messageLength];
-        dataInputStream.read(data, 0, messageLength);
+        // dataInputStream.read(data, 0, messageLength);
+        for (int i = 0; i < messageLength; i++) {
+            data[i] = dataInputStream.readByte();
+        }
         return deserializeArray(data);
     }
 
