@@ -11,12 +11,12 @@ public class ResultsDrawer extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("../../../../../../resources/results.fxml"));
-        primaryStage.setTitle("Server architectures");
+        primaryStage.setTitle("Results");
         Scene scene = new Scene(root, 600, 600);
         primaryStage.setScene(scene);
         primaryStage.setMinHeight(600);
         primaryStage.setMinWidth(600);
-        Controller.setScene(scene);
+        BuilderController.setScene(scene);
         primaryStage.show();
     }
 
