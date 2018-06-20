@@ -51,6 +51,10 @@ public class NonBlockingServer extends Server {
 
     public void startTestingIteration() throws IOException, InterruptedException {
         try {
+            handlingRequestTimeOnServer = 0;
+            handlingClientTimeOnServer = 0;
+            averageRequestTimeOnClient = 0;
+
             testingIsOver = new AtomicBoolean(false);
             clientsFinished = new AtomicInteger(0);
             readRegisterQueue.clear();
