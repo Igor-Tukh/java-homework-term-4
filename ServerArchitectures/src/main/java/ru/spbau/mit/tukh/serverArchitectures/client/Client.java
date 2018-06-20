@@ -30,12 +30,15 @@ public class Client {
 
     public void execute() {
         System.out.println("One more client started");
+
+        long averageTime = 0;
+
         try {
             Socket socket = new Socket(InetAddress.getByName(ip), port);
             try (DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                  DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
-                long startTime = System.currentTimeMillis();
                 for (int i = 0; i < requests_number; i++) {
+                    long startTime = System.currentTimeMillis();
                     fillRandomValues();
                     Serialize.writeArrayToDataOutputStream(dataOutputStream, array);
                     dataOutputStream.flush();
@@ -46,9 +49,11 @@ public class Client {
                     } else {
                         System.out.println("Correct response");
                     }
+
+                    averageTime += System.currentTimeMillis() - startTime;
                     Thread.sleep(time_delta);
                 }
-                dataOutputStream.writeLong(System.currentTimeMillis() - startTime);
+                dataOutputStream.writeLong(averageTime);
             } catch (InterruptedException e) {
                 e.printStackTrace(); // Nothing to do here
             }
