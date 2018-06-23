@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package ru.spbau.mit.tukh.serverArchitectures;
+
+option java_package = "ru.spbau.mit.tukh.serverArchitectures";
+option java_outer_classname = "ArrayProtos";
+
+message Array {
+    repeated int32 data = 1;
+}

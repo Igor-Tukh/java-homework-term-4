@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.spbau.mit.tukh.serverArchitectures.Controller">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+            <fx:define>
+                <ToggleGroup fx:id="toggleGroup1" />
+            </fx:define>
+            <fx:define>
+                <ToggleGroup fx:id="toggleGroup2" />
+            </fx:define>
+
+            <Menu mnemonicParsing="false" text="Server architecture">
+                <items>
+                    <RadioMenuItem fx:id="threadForEach" mnemonicParsing="false" onAction="#onArchitectureChose" selected="true" text="Thread for each client">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="toggleGroup1" />
+                     </toggleGroup></RadioMenuItem>
+                    <RadioMenuItem fx:id="singleThreadExecutor" mnemonicParsing="false" onAction="#onArchitectureChose" text="Single thread executor for response" toggleGroup="$toggleGroup1" />
+                    <RadioMenuItem fx:id="nonBlocking" mnemonicParsing="false" onAction="#onArchitectureChose" text="Non blocking" toggleGroup="$toggleGroup1" />
+                </items>
+            </Menu>
+
+            <Menu mnemonicParsing="false" text="Changing metrics">
+                <items>
+                    <RadioMenuItem fx:id="timeDelta" mnemonicParsing="false" onAction="#onMetricsChose" selected="true" text="Time delta">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="toggleGroup2" />
+                     </toggleGroup></RadioMenuItem>
+                    <RadioMenuItem fx:id="elementsNumber" mnemonicParsing="false" onAction="#onMetricsChose" text="Elements number" toggleGroup="$toggleGroup2" />
+                    <RadioMenuItem fx:id="clientsNumber" mnemonicParsing="false" onAction="#onMetricsChose" text="Clients Number" toggleGroup="$toggleGroup2" />
+                </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <GridPane BorderPane.alignment="CENTER">
+          <columnConstraints>
+              <ColumnConstraints percentWidth="50.0" />
+              <ColumnConstraints percentWidth="50.0" />
+          </columnConstraints>
+          <rowConstraints>
+              <RowConstraints />
+              <RowConstraints percentHeight="50.0" />
+              <RowConstraints percentHeight="50.0" />
+          </rowConstraints>
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+               <children>
+                  <Label text="Select clients number:">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="tclientsNumber" text="3">
+                     <font>
+                        <Font size="12.0" />
+                     </font></TextField>
+                  <Label text="Select requests number:">
+                     <font>
+                        <Font size="12.0" />
+                     </font></Label>
+                  <TextField fx:id="trequestsNumber" text="3">
+                     <font>
+                        <Font size="12.0" />
+                     </font></TextField>
+                  <Label text="Select elements number:">
+                     <font>
+                        <Font size="12.0" />
+                     </font></Label>
+                  <TextField fx:id="telementsNumber" text="1000">
+                     <font>
+                        <Font size="12.0" />
+                     </font></TextField>
+                  <Label text="Select time delta:">
+                     <font>
+                        <Font size="12.0" />
+                     </font></Label>
+                  <TextField fx:id="ttimeDelta" text="3">
+                     <font>
+                        <Font size="12.0" />
+                     </font></TextField>
+               </children>
+            </VBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <children>
+                  <Label text="Select changing metrics max value">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="tmetricsUpperBound" text="10">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </TextField>
+                  <Label text="Select changing metrics step:">
+                     <font>
+                        <Font size="12.0" />
+                     </font></Label>
+                  <TextField fx:id="tmetricsStep" text="1">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </TextField>
+                  <Button fx:id="startButton" alignment="CENTER" mnemonicParsing="false" onAction="#onStartPressed" prefHeight="76.0" prefWidth="300.0" text="Start" VBox.vgrow="ALWAYS">
+                     <font>
+                        <Font size="30.0" />
+                     </font></Button>
+               </children></VBox>
+            <LineChart fx:id="chart" GridPane.rowIndex="2">
+              <xAxis>
+                <NumberAxis side="BOTTOM" fx:id="xAxis" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis fx:id="yAxis" side="LEFT" />
+              </yAxis>
+            </LineChart>
+         </children>
+      </GridPane>
+   </center>
+</BorderPane>
